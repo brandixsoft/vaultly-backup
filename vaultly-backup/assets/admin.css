@@ -1,0 +1,102 @@
+.vaultly{--v-bg:#f6f7fb;--v-surface:#fff;--v-line:#e6e8f0;--v-text:#2b3040;--v-mute:#6b7280;--v-accent:#5b6fd6;--v-accent-d:#4a5dc0;--v-soft:#eef0fc;--v-ok-bg:#e8f6ee;--v-ok:#2f7a4f;--v-bad-bg:#fdecec;--v-bad:#b04a4a;--v-warn-bg:#fdf4e3;--v-warn:#8a6420;--v-r:12px;margin-right:20px;color:var(--v-text)}
+.vaultly [hidden],.vaultly .vaultly-modal[hidden]{display:none!important}
+.vaultly h1{display:flex;align-items:center;gap:12px;font-size:24px;font-weight:600;margin:20px 0 4px;color:var(--v-text)}
+.vaultly-logo{display:block;border-radius:10px}
+.vaultly .vaultly-ver{font-size:12px;font-weight:500;color:var(--v-accent);background:var(--v-soft);padding:3px 9px;border-radius:20px}
+
+/* cards */
+.vaultly-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:18px 0;max-width:none}
+.vaultly-card{background:var(--v-surface);border:1px solid var(--v-line);border-radius:var(--v-r);padding:18px 22px;display:flex;flex-direction:column;gap:4px;box-shadow:0 1px 2px rgba(30,40,80,.04)}
+.vaultly-card span{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;color:var(--v-mute)}
+.vaultly-card strong{font-size:26px;line-height:1.3;font-weight:600;color:var(--v-text)}
+.vaultly-card em{font-style:normal;font-size:13px;color:var(--v-mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vaultly-card.vaultly-warn{background:var(--v-warn-bg);border-color:#f1e1bd}
+
+/* tabs as a soft pill bar */
+.vaultly-tabs{display:inline-flex;gap:4px;padding:4px;background:#e9ecf7;border-radius:10px;margin-top:6px;max-width:none}
+.vaultly-tab{background:none;border:0;border-radius:8px;padding:8px 18px;cursor:pointer;font-size:14px;color:var(--v-mute);transition:background .15s,color .15s}
+.vaultly-tab:hover{color:var(--v-text)}
+.vaultly-tab.is-active{background:var(--v-surface);color:var(--v-accent-d);font-weight:600;box-shadow:0 1px 2px rgba(30,40,80,.1)}
+.vaultly-panel{max-width:none;padding-top:20px}
+
+/* actions */
+.vaultly-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.vaultly-scope{display:flex;gap:8px;border:0;padding:0;margin:0 8px 0 0;flex-wrap:wrap}
+.vaultly-scope label{background:var(--v-surface);border:1px solid var(--v-line);border-radius:10px;padding:10px 16px;cursor:pointer;font-size:14px;transition:border-color .15s,background .15s}
+.vaultly-scope label:hover{border-color:#c9cff0}
+.vaultly-scope label:has(input:checked){border-color:var(--v-accent);background:var(--v-soft)}
+.vaultly-scope small{color:var(--v-mute)}
+.vaultly .button{border-radius:8px;border-color:var(--v-line);color:var(--v-text);background:var(--v-surface);box-shadow:none;transition:background .15s,border-color .15s}
+.vaultly .button:hover,.vaultly .button:focus{background:var(--v-soft);border-color:#c9cff0;color:var(--v-accent-d)}
+.vaultly .button-primary{background:var(--v-accent);border-color:var(--v-accent);color:#fff}
+.vaultly .button-primary:hover,.vaultly .button-primary:focus{background:var(--v-accent-d);border-color:var(--v-accent-d);color:#fff}
+.vaultly-actions .button{min-height:42px;padding:0 24px;font-size:14px;line-height:40px}
+.vaultly .vaultly-delete:hover{background:var(--v-bad-bg);border-color:#efc4c4;color:var(--v-bad)}
+
+/* table */
+.vaultly-table{width:100%;font-size:14px;border:1px solid var(--v-line);border-radius:var(--v-r);overflow:hidden;box-shadow:none;border-collapse:separate;border-spacing:0}
+.vaultly-table thead th{background:var(--v-bg);color:var(--v-mute);font-weight:500;border-bottom:1px solid var(--v-line)}
+.vaultly-table th,.vaultly-table td{padding:14px 18px}
+.vaultly-table td{vertical-align:middle;border-bottom:1px solid var(--v-line)}
+.vaultly-table tbody tr:last-child td{border-bottom:0}
+.vaultly.wrap .striped>tbody>:nth-child(odd){background:#fff}
+.vaultly-table tbody tr:hover{background:#fafbfe!important}
+.vaultly-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.vaultly-row form{margin:0}
+.vaultly-empty{text-align:center;color:var(--v-mute);padding:32px!important}
+
+/* badges */
+.vaultly-badge{display:inline-block;font-size:11px;font-weight:500;line-height:1;padding:4px 9px;border-radius:20px;background:#eef0f4;color:var(--v-mute);margin-top:4px}
+.vaultly-badge.ok{background:var(--v-ok-bg);color:var(--v-ok)}
+.vaultly-badge.bad{background:var(--v-bad-bg);color:var(--v-bad)}
+.vaultly-badge.k-scheduled{background:var(--v-soft);color:var(--v-accent-d)}
+.vaultly-badge.k-pre-restore{background:var(--v-warn-bg);color:var(--v-warn)}
+
+/* settings */
+.vaultly-form{background:var(--v-surface);border:1px solid var(--v-line);border-radius:var(--v-r);padding:8px 26px 22px}
+.vaultly-form h2{margin:22px 0 6px;font-size:15px;font-weight:600}
+.vaultly-form input[type=number]{width:80px}
+.vaultly .description{color:var(--v-mute)}
+.vaultly input[type=text],.vaultly input[type=number],.vaultly select{border-color:var(--v-line);border-radius:8px}
+.vaultly input:focus,.vaultly select:focus{border-color:var(--v-accent);box-shadow:0 0 0 1px var(--v-accent)}
+
+/* link + progress boxes */
+.vaultly-progress{background:var(--v-surface);border:1px solid var(--v-line);border-radius:var(--v-r);padding:14px 18px;margin-bottom:18px}
+.vaultly-bar{background:#e9ecf7;border-radius:8px;height:10px;overflow:hidden}
+#vaultly-bar{background:var(--v-accent);height:10px;width:0;border-radius:8px;transition:width .4s}
+
+/* modal */
+.vaultly-modal{position:fixed;inset:0;background:rgba(40,48,80,.45);backdrop-filter:blur(2px);z-index:100000;display:flex;align-items:center;justify-content:center}
+.vaultly-dialog{background:var(--v-surface);border-radius:16px;width:min(480px,92vw);padding:30px 34px;text-align:center;box-shadow:0 20px 50px rgba(30,40,80,.25);max-height:92vh;overflow:auto}
+.vaultly-spin{width:36px;height:36px;margin:0 auto 14px;border:4px solid #e9ecf7;border-top-color:var(--v-accent);border-radius:50%;animation:vaultly-r .9s linear infinite}
+@keyframes vaultly-r{to{transform:rotate(360deg)}}
+.vaultly-ptitle{margin:0 0 4px;font-size:18px;font-weight:600}
+.vaultly-title{font-size:15px;margin:0 0 14px}
+.vaultly-pct{margin:8px 0 2px;font-size:14px}.vaultly-pct b{font-size:22px;color:var(--v-accent-d)}
+.vaultly-detail{margin:2px 0 0;color:var(--v-mute);min-height:18px}
+.vaultly-dialog hr{border:0;border-top:1px solid var(--v-line);margin:16px 0}
+.vaultly-warn-txt{font-weight:500;color:var(--v-warn);background:var(--v-warn-bg);border-radius:8px;padding:8px 12px;margin:0 0 12px}
+.vaultly-modal.is-error .vaultly-title{color:var(--v-bad);font-weight:600}
+.vaultly-modal.is-error #vaultly-bar{background:#d98a8a}
+.vaultly-steps{list-style:none;margin:14px 0 0;padding:0;text-align:left;display:inline-block;font-size:13px;color:#9aa0b0}
+.vaultly-steps li{padding:2px 0 2px 24px;position:relative}
+.vaultly-steps li:before{content:'○';position:absolute;left:4px}
+.vaultly-steps li.is-done{color:var(--v-ok)}.vaultly-steps li.is-done:before{content:'✓';font-weight:700}
+.vaultly-steps li.is-active{color:var(--v-text);font-weight:600}.vaultly-steps li.is-active:before{content:'▶';color:var(--v-accent);font-size:10px;top:5px}
+#vaultly-done{padding:6px 4px}
+.vaultly-ok{color:var(--v-ok);font-size:22px;margin:0 0 14px}
+.vaultly-sub{color:var(--v-mute);margin:6px 0;font-size:14px}
+.vaultly-next{text-align:left;display:inline-block;margin:6px 0 14px;font-size:14px;color:var(--v-mute)}
+.vaultly-btns{margin:18px 0 4px}
+
+@media (max-width:1100px){.vaultly-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:782px){.vaultly-row{justify-content:flex-start}.vaultly-tabs{display:flex;overflow-x:auto}}
+@media (max-width:600px){.vaultly-cards{grid-template-columns:1fr}}
+
+/* finished-backup dialog: full link + copy + download */
+.vaultly-dialog:has(#vaultly-done:not([hidden])){width:min(600px,94vw)}
+.vaultly-linkbox{display:flex;gap:10px;align-items:stretch;text-align:left;margin:8px 0 4px}
+.vaultly-url{flex:1;min-width:0;background:var(--v-bg);border:1px solid var(--v-line);border-radius:8px;padding:10px 12px;font:13px/1.5 Consolas,Menlo,monospace;color:var(--v-text);word-break:break-all;user-select:all}
+.vaultly-linkbox .button{align-self:center;white-space:nowrap}
+.vaultly-btns{display:flex;justify-content:center;gap:10px;margin:20px 0 4px}
+@media (max-width:600px){.vaultly-linkbox{flex-direction:column}}
