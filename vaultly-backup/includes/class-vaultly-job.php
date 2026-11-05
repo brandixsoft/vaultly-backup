@@ -211,11 +211,11 @@ final class VAULTLY_Job {
 		return self::dir() . '/' . $name;
 	}
 
-	/** Archive name: sitedomain[_tag][_database|_files]_timestamp.ext (tag = scheduled / pre-restore / uploaded; full backups have no scope word). */
+	/** Archive name: sitedomain[-subfolder][_tag][_database|_files]_timestamp.ext (tag = scheduled / pre-restore / uploaded; full backups have no scope word). */
 	public static function file_name( string $tag, string $scope, string $ext = '' ): string {
-		$host = substr( preg_replace( '/[^A-Za-z0-9.-]/', '-', (string) wp_parse_url( home_url(), PHP_URL_HOST ) ), 0, 60 );
+		$host = substr( preg_replace( '/[^A-Za-z0-9.-]+/', '-', preg_replace( '/^www\./i', '', (string) wp_parse_url( home_url(), PHP_URL_HOST ) ) . '/' . trim( (string) wp_parse_url( home_url(), PHP_URL_PATH ), '/' ) ), 0, 80 ); // host + subfolder, so https://x.com/clientsite gives x.com-clientsite
 		$ext  = $ext ?: ( array( 'db' => 'sql', 'files' => 'zip' )[ $scope ] ?? 'vlt' );
-		return implode( '_', array_filter( array( trim( $host, '.-' ) ?: 'site', $tag, array( 'db' => 'database', 'files' => 'files' )[ $scope ] ?? '', gmdate( 'Ymd-His' ) ) ) ) . '.' . $ext;
+		return implode( '_', array_filter( array( trim( $host, '.-/' ) ?: 'site', $tag, array( 'db' => 'database', 'files' => 'files' )[ $scope ] ?? '', gmdate( 'Ymd-His' ) ) ) ) . '.' . $ext;
 	}
 
 	/**

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.7 - 2026-11-05
+- Backup file names now include the site's sub-folder and drop "www." (e.g. `buildwithbs.com-kingsheatingac_20261105-063028.vlt`), so backups of sites on a shared domain are told apart.
+
 ## 1.8.6 - 2026-11-02
 - Removed the PHP version requirement header. Added a GitHub updater (GitHub builds only, not in the WordPress.org zip) so updates and "Enable auto-updates" work from GitHub releases. README for GitHub.
 
