@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.8.8 - 2026-11-05
+- Fixed: the "Enable auto-updates" link was missing in the Plugins list until WordPress happened to run an update check; it now always shows (GitHub build).
+
 ## 1.8.7 - 2026-11-05
 - Backup file names now include the site's sub-folder and drop "www." (e.g. `buildwithbs.com-kingsheatingac_20261105-063028.vlt`), so backups of sites on a shared domain are told apart.
 

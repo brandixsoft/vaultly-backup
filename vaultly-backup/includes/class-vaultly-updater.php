@@ -9,15 +9,22 @@ final class VAULTLY_Updater {
 	const REPO = 'brandixsoft/vaultly-backup'; // set to the public GitHub repo, "user/repo"
 
 	public static function init(): void {
-		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'check' ) );
+		add_filter( 'pre_set_site_transient_update_plugins', array( __CLASS__, 'check' ) ); // WP's own update check: fetch the release here
+		add_filter( 'site_transient_update_plugins', array( __CLASS__, 'show' ) ); // every read: cached data only, so the "Enable auto-updates" link is always there
 	}
 
-	public static function check( $t ) {
-		if ( ! is_object( $t ) || empty( $t->checked ) ) {
+	public static function show( $t ) {
+		return self::check( $t, false );
+	}
+
+	public static function check( $t, bool $fetch = true ) {
+		if ( ! is_object( $t ) ) {
 			return $t;
 		}
 		$rel = get_transient( 'vaultly_gh_release' );
-		if ( false === $rel ) {
+		if ( false === $rel && ! $fetch ) {
+			$rel = array();
+		} elseif ( false === $rel ) {
 			$r   = wp_remote_get( 'https://api.github.com/repos/' . self::REPO . '/releases/latest', array( 'timeout' => 10, 'headers' => array( 'Accept' => 'application/vnd.github+json' ) ) );
 			$rel = ( 200 === wp_remote_retrieve_response_code( $r ) ) ? json_decode( wp_remote_retrieve_body( $r ), true ) : array();
 			set_transient( 'vaultly_gh_release', is_array( $rel ) ? $rel : array(), 6 * HOUR_IN_SECONDS );
@@ -40,6 +47,7 @@ final class VAULTLY_Updater {
 		if ( $ver && $zip && version_compare( $ver, VAULTLY_VERSION, '>' ) ) {
 			$t->response[ VAULTLY_BASENAME ] = $item;
 		} else {
+			unset( $t->response[ VAULTLY_BASENAME ] );
 			$t->no_update[ VAULTLY_BASENAME ] = $item; // makes "Enable auto-updates" show
 		}
 		return $t;
