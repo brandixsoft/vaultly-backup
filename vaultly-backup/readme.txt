@@ -3,7 +3,7 @@ Contributors: faizanahmad67
 Tags: backup, restore, migration, database, wp-content
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 1.8.8
+Stable tag: 1.8.9
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,9 @@ No, single-site only.
 Only in a Files only backup (it is a copy of the whole WordPress folder). A restore never overwrites the live wp-config.php. The one exception: if the backup's database uses a different table prefix, the prefix line in wp-config.php is switched to it so the site can read the restored tables.
 
 == Changelog ==
+
+= 1.8.9 =
+* Fixed: "Backup contains an unsafe path and was rejected" when restoring a backup that held a file whose name contained a Windows backslash (e.g. files left in wp-content/upgrade by a bad theme/plugin unzip). Entry names are now always stored with forward slashes, and older backups with backslash names restore correctly. The zip-slip guard against ".." and absolute paths is unchanged.
 
 = 1.8.8 =
 * Fixed: the "Enable auto-updates" link was missing in the Plugins list until WordPress happened to run an update check; it now always shows (GitHub build).

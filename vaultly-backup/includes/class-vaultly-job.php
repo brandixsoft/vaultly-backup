@@ -720,13 +720,14 @@ final class VAULTLY_Job {
 			list( $size, $rel ) = explode( "	", rtrim( $line, "
 " ), 2 );
 			$abs = "$root/$rel";
+			$ent = $pre . str_replace( '\\', '/', $rel ); // archive entry name is always forward-slash (a Windows file whose own name contains "\" would otherwise fail the restore's path check)
 			if ( is_file( $abs ) && ! is_link( $abs ) && ( $in = @fopen( $abs, 'rb' ) ) ) {
 				if ( $pack ) {
-					VAULTLY_Pack::add_stream( $h, $pre . $rel, $in, (int) @filemtime( $abs ), (int) $size );
+					VAULTLY_Pack::add_stream( $h, $ent, $in, (int) @filemtime( $abs ), (int) $size );
 				} else {
 					// Already-compressed or huge files are only stored: I/O-bound, no CPU spike.
 					$store = $size > ( 256 << 20 ) || in_array( strtolower( pathinfo( $rel, PATHINFO_EXTENSION ) ), self::STORE, true );
-					VAULTLY_Zip::add_stream( $h, $c, $pre . $rel, $in, $store, (int) @filemtime( $abs ) );
+					VAULTLY_Zip::add_stream( $h, $c, $ent, $in, $store, (int) @filemtime( $abs ) );
 				}
 				fclose( $in );
 				$s['n']++;
@@ -917,14 +918,25 @@ final class VAULTLY_Job {
 		return $a instanceof ZipArchive ? $a->numFiles : (int) fstat( $a )['size'];
 	}
 
-	/** Entries (name, size, crc, mtime, next) from resume cursor $from (null = the start). 'next' is the cursor of the entry after this one. */
+	/**
+	 * Entries (name, size, crc, mtime, next) from resume cursor $from (null = the start). 'next' is the cursor of the entry after this one.
+	 * 'name' is normalised to forward slashes so an older backup whose entry names contain a Windows "\" (a file whose own name held a
+	 * backslash) still restores; 'raw' keeps the stored name, needed to read a zip entry back by its exact key.
+	 */
 	private static function each( string $fmt, $a, ?int $from = null ): Generator {
 		if ( 'vaultly' === $fmt ) {
-			yield from VAULTLY_Pack::entries( $a, $from ?? VAULTLY_Pack::START );
+			foreach ( VAULTLY_Pack::entries( $a, $from ?? VAULTLY_Pack::START ) as $st ) {
+				$st['raw']  = $st['name'];
+				$st['name'] = str_replace( '\\', '/', $st['name'] );
+				yield $st;
+			}
 			return;
 		}
 		for ( $i = $from ?? 0; $i < $a->numFiles; $i++ ) {
-			yield $a->statIndex( $i ) + array( 'next' => $i + 1 );
+			$st         = $a->statIndex( $i ) + array( 'next' => $i + 1 );
+			$st['raw']  = $st['name'];
+			$st['name'] = str_replace( '\\', '/', $st['name'] );
+			yield $st;
 		}
 	}
 
@@ -934,7 +946,7 @@ final class VAULTLY_Job {
 			fseek( $a, $st['at'] );
 			self::copy_crc( $a, $out, $st['crc'], $label, $st['size'] );
 		} else {
-			self::copy_crc( $a->getStream( $st['name'] ), $out, $st['crc'], $label );
+			self::copy_crc( $a->getStream( $st['raw'] ?? $st['name'] ), $out, $st['crc'], $label );
 		}
 	}
 
