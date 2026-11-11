@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Vaultly Backup
  * Description: Fast, resumable full-site backup and restore (database + wp-content) with live progress, verify, scheduling and an activity log.
- * Version: 1.8.9
+ * Version: 1.9.0
  * Requires at least: 7.0
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'VAULTLY_FILE', __FILE__ );
 define( 'VAULTLY_BASENAME', plugin_basename( __FILE__ ) );
-define( 'VAULTLY_VERSION', '1.8.9' );
+define( 'VAULTLY_VERSION', '1.9.0' );
 
 require_once __DIR__ . '/includes/class-vaultly-zip.php';
 require_once __DIR__ . '/includes/class-vaultly-pack.php';
@@ -50,7 +50,7 @@ final class VAULTLY_Admin {
 			wp_add_inline_style( 'admin-menu', '#toplevel_page_vaultly-backup .wp-menu-image img{opacity:1;padding:6px 0;width:20px;height:20px}' );
 		} );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
-		foreach ( array( 'start', 'cancel', 'delete', 'upload', 'upload_status', 'dl_link', 'settings' ) as $a ) {
+		foreach ( array( 'start', 'cancel', 'delete', 'upload', 'upload_status', 'url_fetch', 'dl_link', 'settings' ) as $a ) {
 			add_action( "wp_ajax_vaultly_$a", array( __CLASS__, "ajax_$a" ) );
 		}
 		// 'step' must also work without a session: restore replaces wp_users / session tokens mid-job.
@@ -109,6 +109,15 @@ final class VAULTLY_Admin {
 				// translators: 1: uploaded MB, 2: total MB
 				'mbOf'        => __( '%1$d MB of %2$d MB', 'vaultly-backup' ),
 				'uploaded'    => __( 'Upload complete.', 'vaultly-backup' ),
+				// translators: %s: file name
+				'downloading' => __( 'Downloading %s', 'vaultly-backup' ),
+				'connecting'  => __( 'Connecting…', 'vaultly-backup' ),
+				'badUrl'      => __( 'Enter a valid http(s) download link.', 'vaultly-backup' ),
+				'dlDone'      => __( 'Download complete.', 'vaultly-backup' ),
+				// translators: %s: backup file name
+				'askImported' => __( 'Downloaded "%s".\n\nRestore it now? This REPLACES this site. A pre-restore backup is made first.', 'vaultly-backup' ),
+				'restoreNow'  => __( 'Restore now', 'vaultly-backup' ),
+				'later'       => __( 'Not now', 'vaultly-backup' ),
 				'scopeFull'   => __( 'the database AND files', 'vaultly-backup' ),
 				'scopeDb'     => __( 'the database', 'vaultly-backup' ),
 				'scopeFiles'  => __( 'the site files', 'vaultly-backup' ),
@@ -190,6 +199,12 @@ final class VAULTLY_Admin {
 					<button class="button button-primary button-hero" id="vaultly-backup"><?php esc_html_e( 'Create backup', 'vaultly-backup' ); ?></button>
 					<label class="button button-hero" for="vaultly-file"><?php esc_html_e( 'Upload backup…', 'vaultly-backup' ); ?></label>
 					<input type="file" id="vaultly-file" accept=".vlt,.vaultly,.sql,.zip" hidden>
+					<button class="button button-hero" id="vaultly-url-btn"><?php esc_html_e( 'Import from URL…', 'vaultly-backup' ); ?></button>
+				</div>
+
+				<div id="vaultly-url-box" class="vaultly-progress" hidden>
+					<p><?php echo wp_kses( __( '<b>Import from a direct link.</b> Paste the full URL of a <code>.vlt</code>, <code>.sql</code> or <code>.zip</code> backup. The server downloads it here, then you can restore it.', 'vaultly-backup' ), self::HTML ); ?></p>
+					<p><input type="url" class="large-text code" id="vaultly-url-input" placeholder="https://example.com/wp-content/vaultly-backups/site_20260101-000000.vlt"> <button class="button button-primary" id="vaultly-url-go"><?php esc_html_e( 'Download', 'vaultly-backup' ); ?></button></p>
 				</div>
 
 				<div id="vaultly-link" class="vaultly-progress" hidden>
@@ -416,6 +431,101 @@ final class VAULTLY_Admin {
 				VAULTLY_Job::log( 'upload', $name );
 			}
 			return true;
+		} );
+	}
+
+	/** Backup file name to use for a given download URL: the URL's own file name, cleaned to our .vlt/.sql/.zip rules. */
+	private static function url_name( string $url ): string {
+		$base = basename( (string) wp_parse_url( $url, PHP_URL_PATH ) );
+		$base = rawurldecode( $base ) ?: 'import.vlt';
+		if ( ! VAULTLY_Job::valid_name( $base ) ) { // keep its extension if the file name itself is odd
+			$ext  = strtolower( pathinfo( $base, PATHINFO_EXTENSION ) );
+			$base = 'import-' . gmdate( 'Ymd-His' ) . '.' . ( in_array( $ext, array( 'vlt', 'vaultly', 'sql', 'zip' ), true ) ? $ext : 'vlt' );
+		}
+		return VAULTLY_Job::clean_name( $base );
+	}
+
+	/**
+	 * Download a backup from a direct URL into the backups folder, in resumable chunks (HTTP Range), like the chunked upload.
+	 * The server fetches it (not the browser), so there is no CORS/file-size limit. The URL must be a plain public http(s) link.
+	 */
+	public static function ajax_url_fetch(): void {
+		self::guard();
+		self::run( function () {
+			$url = esc_url_raw( trim( (string) wp_unslash( $_POST['url'] ?? '' ) ), array( 'http', 'https' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- guard() ran
+			if ( '' === $url || ! wp_http_validate_url( $url ) ) {
+				throw new RuntimeException( __( 'Enter a valid http(s) download link.', 'vaultly-backup' ) );
+			}
+			$name   = self::url_name( $url );
+			$final  = VAULTLY_Job::dir() . '/' . $name;
+			$part   = self::part_path( $name, $url );
+			$offset = max( 0, (int) self::post( 'offset' ) );
+
+			if ( file_exists( $final ) ) {
+				throw new RuntimeException( __( 'A backup with this name already exists.', 'vaultly-backup' ) );
+			}
+			$have = is_file( $part ) ? (int) filesize( $part ) : 0;
+			if ( 0 === $offset && $have ) { // a fresh start: drop a stale part
+				wp_delete_file( $part );
+				$have = 0;
+			}
+			if ( $offset !== $have ) {
+				$offset = $have; // trust what is on disk, not the browser
+			}
+
+			$chunk = 8 << 20; // 8 MB per request
+			$r     = wp_remote_get( $url, array(
+				'timeout'  => 30,
+				'stream'   => false,
+				'headers'  => array( 'Range' => 'bytes=' . $offset . '-' . ( $offset + $chunk - 1 ) ),
+				'redirection' => 5,
+			) );
+			if ( is_wp_error( $r ) ) {
+				throw new RuntimeException( sprintf( /* translators: %s: error message */ __( 'Download failed: %s', 'vaultly-backup' ), $r->get_error_message() ) );
+			}
+			$code = (int) wp_remote_retrieve_response_code( $r );
+			if ( 200 !== $code && 206 !== $code ) {
+				throw new RuntimeException( sprintf( /* translators: %d: HTTP status code */ __( 'Download failed (HTTP %d). Check the link.', 'vaultly-backup' ), $code ) );
+			}
+			$body = (string) wp_remote_retrieve_body( $r );
+			$got  = strlen( $body );
+
+			// Total size: from Content-Range (206) or Content-Length (200, whole file in one go).
+			$total = 0;
+			if ( preg_match( '~/(\d+)\s*$~', (string) wp_remote_retrieve_header( $r, 'content-range' ), $m ) ) {
+				$total = (int) $m[1];
+			} elseif ( 200 === $code ) {
+				$total = $got; // server ignored Range and sent everything
+			}
+			if ( 200 === $code && $offset > 0 ) { // server can't resume: start the file over from this full response
+				$offset = 0;
+				wp_delete_file( $part );
+			}
+
+			if ( $got > 0 ) {
+				$out = fopen( $part, 0 === $offset ? 'wb' : 'ab' );
+				if ( ! $out || strlen( $body ) !== fwrite( $out, $body ) ) {
+					$out && fclose( $out );
+					throw new RuntimeException( __( 'Cannot write the download (disk full or permissions).', 'vaultly-backup' ) );
+				}
+				fclose( $out );
+			}
+			$now  = $offset + $got; // from the bytes just written, not filesize() (stat cache can be stale right after a write)
+			$done = ( $total > 0 && $now >= $total ) || ( 206 !== $code ) || 0 === $got;
+
+			if ( $done ) {
+				try {
+					VAULTLY_Job::check( $part, $name );
+				} catch ( Throwable $e ) {
+					wp_delete_file( $part );
+					throw $e;
+				}
+				rename( $part, $final );
+				chmod( $final, 0644 );
+				VAULTLY_Job::log( 'url_import', $name );
+				return array( 'done' => true, 'name' => $name );
+			}
+			return array( 'done' => false, 'offset' => $now, 'total' => $total, 'name' => $name );
 		} );
 	}
 

@@ -3,7 +3,7 @@ Contributors: faizanahmad67
 Tags: backup, restore, migration, database, wp-content
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 1.8.9
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -13,7 +13,7 @@ Fast, resumable full-site backup and restore with live progress, verification, s
 
 Vaultly Backup backs up your database and `wp-content`, and restores them again, with a live progress display.
 
-* Create, download, upload, verify, restore and delete backups (full site, database only, or files only)
+* Create, download, upload, import from a URL, verify, restore and delete backups (full site, database only, or files only)
 * Live progress popup with percentage, files processed and time estimate
 * Fast append-only archives; every phase is resumable after a timeout or dropped connection
 * Verify button re-reads a backup and checks every checksum without touching your site
@@ -37,6 +37,9 @@ No, single-site only.
 Only in a Files only backup (it is a copy of the whole WordPress folder). A restore never overwrites the live wp-config.php. The one exception: if the backup's database uses a different table prefix, the prefix line in wp-config.php is switched to it so the site can read the restored tables.
 
 == Changelog ==
+
+= 1.9.0 =
+* New: Import from URL. Paste a direct link to a .vlt, .sql or .zip backup and the server downloads it into your backups folder with a live progress bar (resumable, in chunks, no CORS or browser file-size limit), then asks whether to restore it. Only plain public http(s) links are accepted.
 
 = 1.8.9 =
 * Fixed: "Backup contains an unsafe path and was rejected" when restoring a backup that held a file whose name contained a Windows backslash (e.g. files left in wp-content/upgrade by a bad theme/plugin unzip). Entry names are now always stored with forward slashes, and older backups with backslash names restore correctly. The zip-slip guard against ".." and absolute paths is unchanged.

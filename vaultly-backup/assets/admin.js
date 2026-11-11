@@ -164,6 +164,44 @@
 		}
 	}
 
+	// Import from a direct URL: the server downloads the file in resumable chunks, then offers to restore it.
+	async function urlImport(url) {
+		lock(true);
+		t0 = Date.now();
+		show(T('connecting'), 0);
+		try {
+			let off = 0, name = '', fails = 0;
+			for (;;) {
+				let r;
+				try {
+					r = await post('vaultly_url_fetch', { url, offset: off }, 2);
+					fails = 0;
+				} catch (e) {
+					if (e.fatal || ++fails > 3) throw e;
+					await sleep(2000);
+					continue;
+				}
+				name = r.name || name;
+				if (r.done) break;
+				off = r.offset;
+				const p = r.total > 0 ? (100 * off) / r.total : 0;
+				show(T('downloading', name), p, false, r.total > 0 ? T('mbOf', off >> 20, r.total >> 20) : (off >> 20) + ' MB');
+			}
+			show(T('dlDone'), 100);
+			if (await ask(T('askImported', name), T('restoreNow'), T('later'))) {
+				job('restore', { archive: name });
+			} else {
+				location.reload();
+			}
+		} catch (e) {
+			show(e.message, 0, true);
+			lock(false);
+		}
+	}
+	$('#vaultly-url-btn').onclick = (e) => { e.preventDefault(); const b = $('#vaultly-url-box'); b.hidden = !b.hidden; if (!b.hidden) { $('#vaultly-url-input').focus(); b.scrollIntoView({ block: 'nearest' }); } };
+	$('#vaultly-url-go').onclick = () => { const u = $('#vaultly-url-input').value.trim(); if (!/^https?:\/\//i.test(u)) { show(T('badUrl'), 0, true); return; } urlImport(u); };
+	$('#vaultly-url-input').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('#vaultly-url-go').click(); } };
+
 	$('#vaultly-backup').onclick = () => job('backup', { scope: ($('input[name=vaultly-scope]:checked') || {}).value || 'full' });
 	$('#vaultly-file').onchange = (e) => e.target.files[0] && upload(e.target.files[0]);
 	const link = async (name) => (await post('vaultly_dl_link', { name })).url; // direct public URL of the file
@@ -182,12 +220,12 @@
 	$('#vaultly-copy').onclick = () => { const i = $('#vaultly-link-url'); i.select(); try { navigator.clipboard.writeText(i.value); } catch (e) { document.execCommand('copy'); } };
 	$$('.vaultly-verify').forEach((b) => (b.onclick = () => job('verify', { archive: b.dataset.name })));
 	// in-page confirmation (same popup as backup/download) instead of the browser's confirm() alert
-	const ask = (text, okLabel) => new Promise((res) => {
+	const ask = (text, okLabel, noLabel) => new Promise((res) => {
 		const [h, ...rest] = text.split('\n\n'), d = $('#vaultly-done');
 		$('#vaultly-run').hidden = true;
 		box.hidden = false;
 		d.hidden = false;
-		const yes = el('button', 'button button-primary', okLabel), no = el('button', 'button', T('cancelBtn')), row = el('div', 'vaultly-btns');
+		const yes = el('button', 'button button-primary', okLabel), no = el('button', 'button', noLabel || T('cancelBtn')), row = el('div', 'vaultly-btns');
 		const end = (v) => { box.hidden = true; d.hidden = true; res(v); };
 		yes.onclick = () => end(true);
 		no.onclick = () => end(false);
