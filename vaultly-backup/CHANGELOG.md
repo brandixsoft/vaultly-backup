@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.2 - 2026-11-11
+- Release assets are now named with the version (e.g. `vaultly-backup-1.9.2.zip`). The updater accepts either that or the plain `vaultly-backup.zip`, so updates keep working.
+
 ## 1.9.1 - 2026-11-11
 - Updater: added a **Check for updates** link under the plugin in the Plugins list (forces a fresh check right away instead of waiting for WordPress's 12-hour cycle), with a notice telling you whether an update was found.
 - Updater: the **View details** popup now shows the full release changelog, version, author and the "tested up to" / "requires PHP" headers, like a normal plugin.

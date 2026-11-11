@@ -1,7 +1,7 @@
 <?php
 /**
  * GitHub updater. Ships ONLY in the GitHub release zip (WordPress.org forbids plugin updaters): delete this file for the WordPress.org build.
- * Release rule: tag vX.Y.Z and attach an asset named vaultly-backup.zip that contains the folder vaultly-backup/.
+ * Release rule: tag vX.Y.Z and attach a zip whose name is vaultly-backup.zip or vaultly-backup-X.Y.Z.zip, containing the folder vaultly-backup/.
  */
 defined( 'ABSPATH' ) || exit;
 
@@ -79,8 +79,9 @@ final class VAULTLY_Updater {
 	private static function parse( array $rel ): array {
 		$ver = ltrim( (string) ( $rel['tag_name'] ?? '' ), 'vV' );
 		$zip = '';
+		// Accept vaultly-backup.zip or a versioned name like vaultly-backup-1.9.1.zip (whichever the release carries).
 		foreach ( (array) ( $rel['assets'] ?? array() ) as $a ) {
-			if ( 'vaultly-backup.zip' === ( $a['name'] ?? '' ) ) {
+			if ( preg_match( '/^vaultly-backup(-[0-9][0-9A-Za-z.\-]*)?\.zip$/', (string) ( $a['name'] ?? '' ) ) ) {
 				$zip = (string) $a['browser_download_url'];
 			}
 		}

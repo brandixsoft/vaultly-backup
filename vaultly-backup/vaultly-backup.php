@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Vaultly Backup
  * Description: Fast, resumable full-site backup and restore (database + wp-content) with live progress, verify, scheduling and an activity log.
- * Version: 1.9.1
+ * Version: 1.9.2
  * Requires at least: 7.0
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
 
 define( 'VAULTLY_FILE', __FILE__ );
 define( 'VAULTLY_BASENAME', plugin_basename( __FILE__ ) );
-define( 'VAULTLY_VERSION', '1.9.1' );
+define( 'VAULTLY_VERSION', '1.9.2' );
 
 require_once __DIR__ . '/includes/class-vaultly-zip.php';
 require_once __DIR__ . '/includes/class-vaultly-pack.php';
