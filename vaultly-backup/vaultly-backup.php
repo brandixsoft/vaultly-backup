@@ -34,6 +34,9 @@ final class VAULTLY_Admin {
 			return;
 		}
 		register_activation_hook( VAULTLY_FILE, array( 'VAULTLY_Job', 'activate' ) );
+		if ( class_exists( 'VAULTLY_Updater' ) ) {
+			register_activation_hook( VAULTLY_FILE, array( 'VAULTLY_Updater', 'flush' ) ); // drop any stale cached release so the update check is fresh right after install
+		}
 		register_deactivation_hook( VAULTLY_FILE, function () {
 			wp_clear_scheduled_hook( 'vaultly_cron' );
 		} );

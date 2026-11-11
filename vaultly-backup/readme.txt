@@ -40,6 +40,7 @@ Only in a Files only backup (it is a copy of the whole WordPress folder). A rest
 
 = 1.8.9 =
 * Fixed: "Backup contains an unsafe path and was rejected" when restoring a backup that held a file whose name contained a Windows backslash (e.g. files left in wp-content/upgrade by a bad theme/plugin unzip). Entry names are now always stored with forward slashes, and older backups with backslash names restore correctly. The zip-slip guard against ".." and absolute paths is unchanged.
+* Fixed: GitHub updater could hide a new release for up to 6 hours after a failed check. Failed checks are now cached for 15 minutes only, the cache is cleared after updates and on activation, and the "View details" popup is filled from the release.
 
 = 1.8.8 =
 * Fixed: the "Enable auto-updates" link was missing in the Plugins list until WordPress happened to run an update check; it now always shows (GitHub build).

@@ -2,6 +2,7 @@
 
 ## 1.8.9 - 2026-11-11
 - Fixed: "Backup contains an unsafe path and was rejected" when restoring a backup that contained a file whose name held a Windows backslash (e.g. files left in `wp-content/upgrade` by a bad theme/plugin unzip). Archive entry names are now always stored with forward slashes, and older backups with backslash names restore correctly (the backslash is treated as a separator, not a path-traversal attempt). The zip-slip guard against `..` and absolute paths is unchanged.
+- Fixed: GitHub updater could hide a new release for up to 6 hours after a failed/empty check cached an empty result. A failed check is now cached for 15 minutes only, the cache is cleared after any update and on activation, and the "View details" popup is filled from the release.
 
 ## 1.8.8 - 2026-11-05
 - Fixed: the "Enable auto-updates" link was missing in the Plugins list until WordPress happened to run an update check; it now always shows (GitHub build).
