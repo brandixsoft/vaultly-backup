@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.9.1 - 2026-11-11
+- Updater: added a **Check for updates** link under the plugin in the Plugins list (forces a fresh check right away instead of waiting for WordPress's 12-hour cycle), with a notice telling you whether an update was found.
+- Updater: the **View details** popup now shows the full release changelog, version, author and the "tested up to" / "requires PHP" headers, like a normal plugin.
+- Fixed: after a GitHub update the unpacked folder (e.g. `vaultly-backup-1.9.0`) is renamed back to `vaultly-backup`, so the update applies in place instead of installing a duplicate / deactivating the plugin.
+
 ## 1.9.0 - 2026-11-11
 - New: Import from URL. Paste a direct link to a `.vlt`, `.sql` or `.zip` backup and the server downloads it into your backups folder with a live progress bar (resumable, in chunks, no CORS or browser file-size limit). When the download finishes you are asked whether to restore it now. Only plain public http(s) links are accepted.
 

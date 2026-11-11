@@ -3,7 +3,7 @@ Contributors: faizanahmad67
 Tags: backup, restore, migration, database, wp-content
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 1.9.0
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,9 @@ No, single-site only.
 Only in a Files only backup (it is a copy of the whole WordPress folder). A restore never overwrites the live wp-config.php. The one exception: if the backup's database uses a different table prefix, the prefix line in wp-config.php is switched to it so the site can read the restored tables.
 
 == Changelog ==
+
+= 1.9.1 =
+* Updater: added a "Check for updates" link under the plugin in the Plugins list (forces a fresh check right away), the "View details" popup now shows the full changelog and version headers, and after a GitHub update the folder is renamed back to vaultly-backup so the update applies in place.
 
 = 1.9.0 =
 * New: Import from URL. Paste a direct link to a .vlt, .sql or .zip backup and the server downloads it into your backups folder with a live progress bar (resumable, in chunks, no CORS or browser file-size limit), then asks whether to restore it. Only plain public http(s) links are accepted.
