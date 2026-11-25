@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.3 - 2026-11-25
+- Fix: restore no longer aborts with "Cannot write ... (permissions)" (leaving the site half-restored) when a file or folder is read-only, e.g. a locked `.htaccess`. Such files are skipped and the live copy is kept.
+
 ## 1.9.2 - 2026-11-11
 - Release assets are now named with the version (e.g. `vaultly-backup-1.9.2.zip`). The updater accepts either that or the plain `vaultly-backup.zip`, so updates keep working.
 

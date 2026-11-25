@@ -3,7 +3,7 @@ Contributors: faizanahmad67
 Tags: backup, restore, migration, database, wp-content
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,6 +37,9 @@ No, single-site only.
 Only in a Files only backup (it is a copy of the whole WordPress folder). A restore never overwrites the live wp-config.php. The one exception: if the backup's database uses a different table prefix, the prefix line in wp-config.php is switched to it so the site can read the restored tables.
 
 == Changelog ==
+
+= 1.9.3 =
+* Fix: restore no longer aborts with "Cannot write ... (permissions)" when a file or folder on the server is read-only (e.g. a locked .htaccess); that file is skipped and the live copy kept.
 
 = 1.9.2 =
 * Release assets are now named with the version (e.g. vaultly-backup-1.9.2.zip). The updater accepts either that or the plain vaultly-backup.zip.

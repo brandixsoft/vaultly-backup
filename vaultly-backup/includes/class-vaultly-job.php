@@ -1121,9 +1121,9 @@ final class VAULTLY_Job {
 				if ( is_link( $dst ) || is_dir( $dst ) ) {
 					throw new RuntimeException( sprintf( /* translators: %s: file path */ __( 'Refusing to write outside the site folder: %s', 'vaultly-backup' ), $rel ) );
 				}
-				$out = fopen( "$dst.vaultlytmp", 'wb' );
+				$out = @fopen( "$dst.vaultlytmp", 'wb' );
 				if ( ! $out ) {
-					throw new RuntimeException( sprintf( /* translators: %s: file path */ __( 'Cannot write %s (permissions).', 'vaultly-backup' ), $rel ) );
+					continue; // read-only file/folder (locked .htaccess, root-owned dir): keep the live copy, don't abort half-way
 				}
 				try {
 					if ( $st['size'] > 0 ) {
